@@ -1,0 +1,25 @@
+---
+import type { GetStaticPaths } from "astro"
+import Layout from '../../layouts/Layout.astro'
+import {db, eq, School} from 'astro:db'
+
+const schools_ids = await db.select({id: School.id}).from(School)
+
+export function getStaticPaths() {
+    return schools_ids
+}
+
+const {id_school} = Astro.params
+
+if(!id_school) {
+    Astro.redirect('/')
+}
+
+
+const allSchools = await db.select().from(School).where(eq(School.id, id_school))
+
+---
+
+<Layout>
+    <h1>{allSchools[0].name}</h1>
+</Layout>

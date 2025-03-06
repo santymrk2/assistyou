@@ -1,11 +1,29 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+
+import {db, School, Course} from 'astro:db'
+
+const schools = await db.select().from(School)
+
+const courses = await db.select().from(Course)
+
 
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
 // Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <Layout>
-	<Welcome />
+	<div class="flex flex-col jusfity-center items-center">
+		<div class="flex flex-row gap-6">
+			{
+				schools.map(({id, name}) => (
+					<div class="bg-black rounded-xl ">
+						<a href={`/schools/${id}`} class="text-white m-2 p-2">{name}</a>
+					</div>
+				))
+			}
+	
+		</div>
+	
+	</div>
 </Layout>
