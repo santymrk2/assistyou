@@ -44,12 +44,12 @@ if (!school) {
     ) : (
       <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {courses.map((course) => (
-          <li class="bg-orange-600 rounded-lg shadow hover:bg-gray-800 transition-colors">
+          <li class="bg-orange-600 hover:bg-orange-700 rounded-lg shadow transition-colors">
             <a 
               href={`/schools/${school.id}/courses/${course.id}`} 
               class="block"
             >
-              <div class="flex items-center justify-center font-black text-xl text-white p-4 h-20 rounded-xl text-center">
+              <div class="flex items-center justify-center font-black text-xl text-zinc-900 p-4  rounded-xl text-center">
                 {course.name}
               </div>
             </a>
