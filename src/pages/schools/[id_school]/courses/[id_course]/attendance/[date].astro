@@ -1,0 +1,162 @@
+---
+import Layout from "../../../../../../layouts/Layout.astro";
+import { db, eq, and, School, Course, Student } from "astro:db";
+
+// Eliminamos getStaticPaths y usamos SSR
+
+const { id_school, id_course, date } = Astro.params;
+
+// Validar formato de fecha
+const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+if (!dateRegex.test(date)) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not Found',
+  });
+}
+
+// Obtener datos
+const [school, course] = await Promise.all([
+  db.select().from(School).where(eq(School.id, Number(id_school))).then(res => res[0]),
+  db.select().from(Course).where(eq(Course.id, Number(id_course))).then(res => res[0])
+]);
+
+if (!school || !course) {
+  return new Response(null, {
+    status: 404,
+    statusText: 'Not Found',
+  });
+}
+
+const students = await db
+  .select()
+  .from(Student)
+  .where(eq(Student.course_student, course.id));
+---
+
+<Layout>
+  <section class="p-4">
+    <!-- Botón de regreso -->
+    <div class="mb-6">
+      <a
+        href={`/schools/${school.id}/courses/${course.id}`}
+        class="text-blue-600 hover:underline"
+      >
+        &larr; Volver a {course.name}
+      </a>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
+      <!-- Fecha -->
+      <div class="text-center mb-8">
+        <h1 class="text-2xl font-bold">Asistencia del {new Date(date).toLocaleDateString('es-AR')}</h1>
+      </div>
+
+      <!-- Tarjeta de estudiante -->
+      <div class="bg-gray-50 rounded-lg p-6 mb-6">
+        <!-- Estado de carga -->
+        <div id="loading" class="text-center text-gray-500">
+          Cargando estudiantes...
+        </div>
+
+        <!-- Contenido dinámico -->
+        <div id="content" class="hidden">
+          <div class="text-center mb-6">
+            <p class="text-xl font-semibold" id="studentName"></p>
+          </div>
+
+          <!-- Botones de estado -->
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <button class="status-btn bg-green-500 hover:bg-green-600 text-white p-3 rounded" data-status="presente">
+              Presente
+            </button>
+            <button class="status-btn bg-red-500 hover:bg-red-600 text-white p-3 rounded" data-status="ausente">
+              Ausente
+            </button>
+            <button class="status-btn bg-yellow-500 hover:bg-yellow-600 text-white p-3 rounded" data-status="tarde">
+              Tarde
+            </button>
+            <button class="status-btn bg-blue-500 hover:bg-blue-600 text-white p-3 rounded" data-status="justificado">
+              Justificado
+            </button>
+          </div>
+
+          <!-- Navegación -->
+          <div class="flex justify-between">
+            <button id="prevStudent" class="bg-gray-200 hover:bg-gray-300 p-2 rounded">
+              &larr; Anterior
+            </button>
+            <span id="counter" class="text-gray-600"></span>
+            <button id="nextStudent" class="bg-gray-200 hover:bg-gray-300 p-2 rounded">
+              Siguiente &rarr;
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentStudentIndex = 0;
+      const students = JSON.parse('${JSON.stringify(students)}');
+      
+      // Elementos UI
+      const loadingElement = document.getElementById('loading');
+      const contentElement = document.getElementById('content');
+      const studentNameElement = document.getElementById('studentName');
+      const counterElement = document.getElementById('counter');
+
+      function updateUI() {
+        if (students.length === 0) {
+          studentNameElement.textContent = 'No hay estudiantes en este curso';
+          return;
+        }
+        
+        studentNameElement.textContent = students[currentStudentIndex].name;
+        counterElement.textContent = `${currentStudentIndex + 1} de ${students.length}`;
+        contentElement.classList.remove('hidden');
+        loadingElement.classList.add('hidden');
+      }
+
+      function handleNavigation(direction) {
+        currentStudentIndex = Math.max(0, Math.min(students.length - 1, currentStudentIndex + direction));
+        updateUI();
+      }
+
+      // Event listeners
+      document.querySelectorAll('.status-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          try {
+            const response = await fetch('/api/attendance', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                studentId: students[currentStudentIndex].id,
+                date: '${date}',
+                status: btn.dataset.status,
+                courseId: ${course.id}
+              }),
+            });
+            
+            if (!response.ok) throw new Error('Error al guardar');
+            handleNavigation(1);
+          } catch (error) {
+            alert(error.message);
+          }
+        });
+      });
+
+      document.getElementById('prevStudent').addEventListener('click', () => handleNavigation(-1));
+      document.getElementById('nextStudent').addEventListener('click', () => handleNavigation(1));
+
+      // Inicialización
+      if (students.length > 0) {
+        updateUI();
+      } else {
+        loadingElement.textContent = 'No hay estudiantes en este curso';
+      }
+    </script>
+  </section>
+</Layout>

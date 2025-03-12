@@ -1,8 +1,10 @@
 ---
 import "../styles/global.css"
+// Supports weights 200-900
+import '@fontsource-variable/nunito-sans';
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
@@ -10,7 +12,7 @@ import "../styles/global.css"
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro Basics</title>
 	</head>
-	<body class="w-full">
+	<body class="w-full dark:bg-zinc-900 font-sans" class:dark="dark">
 		<slot />
 	</body>
 </html>

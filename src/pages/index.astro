@@ -1,29 +1,51 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from '@/layouts/Layout.astro';
+import Schools from '@/components/Schools.astro';
 
-import {db, School, Course} from 'astro:db'
+import {getSession} from 'auth-astro/server';
 
-const schools = await db.select().from(School)
-
-const courses = await db.select().from(Course)
+const session = await getSession(Astro.request);
 
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <Layout>
-	<div class="flex flex-col jusfity-center items-center">
-		<div class="flex flex-row gap-6">
-			{
-				schools.map(({id, name}) => (
-					<div class="bg-black rounded-xl ">
-						<a href={`/schools/${id}`} class="text-white m-2 p-2">{name}</a>
-					</div>
-				))
-			}
-	
+	<main class="flex flex-col jusfity-center items-center">
+		{
+			session && <button id="logout" class="p-4 font-bold text-black dark:text-white text-center rounded-xl hover:bg-zinc-200 transition-all">Cerrar sesion</button>
+		}
+
+		<header class="flex flex-col gap-4 m-16">
+			<h1 class="text-4xl font-bold text-center dark:text-white flex justify-center">Assist<p class="text-orange-600 font-black">YOU</p></h1>
+			<p class="text-center dark:text-white">Bienvenido a la plataforma de asistencia para profesores</p>
+		</header>
+
+		{
+		session ? (
+		<Schools />
+		) : (
+		<div class="flex gap-4">
+			<button id="login" class="font-bold bg-black  text-white rounded-lg p-2 hover:bg-zinc-700  transition-all dark:bg-white dark:text-black dark-hover:bg-zinc-200">Iniciar sesion</button>
 		</div>
-	
-	</div>
+		)
+		}
+
+	</main>
 </Layout>
+
+<script>
+	import { $ } from '@/lib/dom-selector'
+	const {signIn, signOut} = await import('auth-astro/client')
+
+	const $login = $('#login')
+	const $logout = $('#logout')
+
+	if ($login) {
+		$login.onclick = () => signIn("google")
+	}
+	if ($logout) {
+		$logout.onclick =() =>signOut()
+	}
+
+</script>
+
