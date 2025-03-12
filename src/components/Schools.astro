@@ -2,7 +2,7 @@
 import {db, School} from 'astro:db'
 const schools = await db.select().from(School).all()
 
-export const prerender = false;
+export const prerender = true;
 ---
 
 <div class="flex flex-col items-center">
