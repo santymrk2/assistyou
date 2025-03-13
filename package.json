@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build --remote",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -17,6 +17,7 @@
     "@fontsource-variable/nunito-sans": "^5.2.5",
     "@fontsource/barlow": "^5.2.5",
     "@fontsource/poppins": "^5.2.5",
+    "@libsql/client": "^0.14.0",
     "@tailwindcss/vite": "^4.0.13",
     "astro": "^5.4.3",
     "auth-astro": "^4.2.0",

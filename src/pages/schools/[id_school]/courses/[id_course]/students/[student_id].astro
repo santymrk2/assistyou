@@ -1,6 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import { db, eq, School, Course, Student } from "astro:db";
+import { db, eq, School, Course, Student, Attendance } from "astro:db";
 
 export const prerender = false;
 
@@ -16,9 +16,21 @@ if (!id_school || !id_course || !student_id) {
 
 // Obtener datos de la escuela, curso y estudiante
 const [school, course, student] = await Promise.all([
-  db.select().from(School).where(eq(School.id, id_school)).then((res) => res[0]),
-  db.select().from(Course).where(eq(Course.id, id_course)).then((res) => res[0]),
-  db.select().from(Student).where(eq(Student.id, student_id)).then((res) => res[0]),
+  db
+    .select()
+    .from(School)
+    .where(eq(School.id, id_school))
+    .then((res) => res[0]),
+  db
+    .select()
+    .from(Course)
+    .where(eq(Course.id, id_course))
+    .then((res) => res[0]),
+  db
+    .select()
+    .from(Student)
+    .where(eq(Student.id, student_id))
+    .then((res) => res[0]),
 ]);
 
 // Validar existencia de los recursos
@@ -30,29 +42,85 @@ if (!school || !course || !student) {
 }
 
 // Verificar que el curso pertenece a la escuela y que el estudiante está inscrito en el curso
-if (course.school_course !== school.id || student.course_student !== course.id) {
-  return new Response("El estudiante no pertenece al curso o la escuela especificados", {
-    status: 400,
-    statusText: "Bad Request",
-  });
+if (
+  course.school_course !== school.id ||
+  student.course_student !== course.id
+) {
+  return new Response(
+    "El estudiante no pertenece al curso o la escuela especificados",
+    {
+      status: 400,
+      statusText: "Bad Request",
+    },
+  );
 }
+
+// Obtener datos de asistencia del estudiante
+const attendances = await db
+  .select()
+  .from(Attendance)
+  .where(eq(Attendance.student_id, student_id));
+
+// Calcular el porcentaje de asistencia
+const totalClasses = attendances.length;
+const attendedClasses = attendances.filter(
+  (attendance) => attendance.present,
+).length;
+const attendancePercentage =
+  totalClasses > 0 ? (attendedClasses / totalClasses) * 100 : 0;
 ---
 
 <Layout>
   <section class="p-4">
     <div class="mb-6">
-      <a href={`/schools/${school.id}/courses/${course.id}`} class="text-orange-600 hover:underline">
+      <a
+        href={`/schools/${school.id}/courses/${course.id}`}
+        class="text-orange-600 hover:underline"
+      >
         &larr; Volver a {course.name}
       </a>
     </div>
 
-    <h1 class="text-3xl font-bold mb-2 dark:text-white">Perfil del Estudiante</h1>
+    <h1 class="text-3xl font-bold mb-2 dark:text-white">
+      Perfil del Estudiante
+    </h1>
 
-    <div class="bg-white shadow rounded-lg p-4">
-      <h2 class="text-2xl font-semibold mb-4 dark:text-white">{student.name}</h2>
-      <p class="mb-2"><strong>ID:</strong> {student.id}</p>
-      <p class="mb-2"><strong>Correo:</strong> {student.email}</p>
+    <div class="rounded-lg p-4 dark:text-white">
+      <h2 class="text-2xl font-semibold mb-4">{student.name}</h2>
+      <p class="mb-2"><strong>Curso:</strong> {course.name}</p>
+      <p class="mb-2"><strong>Escuela:</strong> {school.name}</p>
       <!-- Puedes agregar más información del estudiante aquí -->
+    </div>
+
+    <!-- Here goes the assistance and the percentage of the assistance -->
+    <div class="dark:text-white p-4">
+      <h3 class="text-xl font-semibold mb-2">Asistencia</h3>
+      <p class="mb-2"><strong>Total de clases:</strong> {totalClasses}</p>
+      <p class="mb-2"><strong>Clases asistidas:</strong> {attendedClasses}</p>
+      <p class="mb-2">
+        <strong>Porcentaje de asistencia:</strong>
+        {attendancePercentage.toFixed(2)}%
+      </p>
+    </div>
+
+    <div class="dark:text-white p-4">
+      <h3 class="text-xl font-semibold mb-2">Examenes</h3>
+      <p class="mb-2"><strong></strong>Ejemplo</p>
+      <div class="grid grid-cols-2 gap-4">
+
+        <div class="flex flex-col justify-center items-center gap-2 bg-zinc-700 p-4 rounded-lg">
+          <p class="text-sm text-zinc-300">12/03/24</p>
+          <p class="text-xl">Examen 1</p>
+          <p class="font-extrabold"> 95/100</p>
+        </div>
+
+        <div class="flex flex-col justify-center items-center gap-2 bg-zinc-700 p-4 rounded-lg">
+          <p class="text-sm text-zinc-300">12/03/24</p>
+          <p class="text-xl">Examen 2</p>
+          <p class="font-extrabold"> 95/100</p>
+        </div>
+      </div>
+
     </div>
   </section>
 </Layout>
