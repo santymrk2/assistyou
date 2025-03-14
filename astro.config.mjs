@@ -8,7 +8,12 @@ import auth from 'auth-astro';
 // https://astro.build/config
 export default defineConfig({
   vite: {
-    plugins: [tailwindcss()], 
+    plugins: [tailwindcss()],
+    resolve: {
+      alias: {
+        "@": "/src"
+      }
+    }
   },
   output: "static",
   adapter: vercel({
