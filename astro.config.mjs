@@ -1,7 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import tailwindcss from "@tailwindcss/vite";
-import vercel from '@astrojs/vercel';
+import vercel from '@astrojs/vercel/serverless';
 import db from '@astrojs/db';
 import auth from 'auth-astro';
 
