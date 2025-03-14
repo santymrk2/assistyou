@@ -10,13 +10,7 @@ import auth from 'auth-astro';
 // https://astro.build/config
 export default defineConfig({
   vite: {
-    plugins: [tailwindcss()],
-    resolve: {
-      alias: {
-        '@': '/src', // Ruta absoluta
-      }
-    }
-  
+    plugins: [tailwindcss()], 
   },
   
   output: "server",
