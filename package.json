@@ -17,11 +17,10 @@
     "@fontsource-variable/nunito-sans": "^5.2.5",
     "@fontsource/barlow": "^5.2.5",
     "@fontsource/poppins": "^5.2.5",
-    "@libsql/client": "^0.14.0",
-    "@tailwindcss/vite": "^4.0.13",
-    "astro": "^5.4.3",
+    "@tailwindcss/vite": "^4.0.14",
+    "astro": "^5.5.2",
     "auth-astro": "^4.2.0",
-    "tailwindcss": "^4.0.13"
+    "tailwindcss": "^4.0.14"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

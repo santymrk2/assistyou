@@ -1,6 +1,16 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import { db, eq, School, Course, Student, Attendance } from "astro:db";
+import {
+  db,
+  eq,
+  School,
+  Course,
+  Student,
+  Attendance,
+  AttendanceStudent,
+  Exam,
+  ExamStudent,
+} from "astro:db";
 
 export const prerender = false;
 
@@ -42,32 +52,50 @@ if (!school || !course || !student) {
 }
 
 // Verificar que el curso pertenece a la escuela y que el estudiante está inscrito en el curso
-if (
-  course.school_course !== school.id ||
-  student.course_student !== course.id
-) {
+if (course.school_id !== school.id || student.course_id !== course.id) {
   return new Response(
     "El estudiante no pertenece al curso o la escuela especificados",
     {
       status: 400,
       statusText: "Bad Request",
-    },
+    }
   );
 }
 
-// Obtener datos de asistencia del estudiante
-const attendances = await db
+// Obtener datos de asistencia
+// Total de clases impartidas en el curso:
+const allAttendances = await db
   .select()
   .from(Attendance)
-  .where(eq(Attendance.student_id, student_id));
+  .where(eq(Attendance.course_id, course.id));
 
-// Calcular el porcentaje de asistencia
-const totalClasses = attendances.length;
-const attendedClasses = attendances.filter(
-  (attendance) => attendance.present,
-).length;
+// Clases a las que asistió el estudiante (se registra en AttendanceStudent)
+const attendedAttendances = await db
+  .select()
+  .from(AttendanceStudent)
+  .where(eq(AttendanceStudent.student_id, student.id));
+
+const totalClasses = allAttendances.length;
+const attendedClasses = attendedAttendances.length;
 const attendancePercentage =
   totalClasses > 0 ? (attendedClasses / totalClasses) * 100 : 0;
+
+// Obtener datos de exámenes: unir la tabla ExamStudent con Exam para obtener detalles del examen y la nota
+const examRecords = await db
+  .select()
+  .from(ExamStudent)
+  .where(eq(ExamStudent.student_id, student.id));
+
+const examDetails = await Promise.all(
+  examRecords.map(async (record) => {
+    const exam = await db
+      .select()
+      .from(Exam)
+      .where(eq(Exam.id, record.exam_id))
+      .then((res) => res[0]);
+    return { exam, nota: record.nota };
+  })
+);
 ---
 
 <Layout>
@@ -89,10 +117,9 @@ const attendancePercentage =
       <h2 class="text-2xl font-semibold mb-4">{student.name}</h2>
       <p class="mb-2"><strong>Curso:</strong> {course.name}</p>
       <p class="mb-2"><strong>Escuela:</strong> {school.name}</p>
-      <!-- Puedes agregar más información del estudiante aquí -->
+      <!-- Se puede agregar más información del estudiante aquí -->
     </div>
 
-    <!-- Here goes the assistance and the percentage of the assistance -->
     <div class="dark:text-white p-4">
       <h3 class="text-xl font-semibold mb-2">Asistencia</h3>
       <p class="mb-2"><strong>Total de clases:</strong> {totalClasses}</p>
@@ -104,23 +131,26 @@ const attendancePercentage =
     </div>
 
     <div class="dark:text-white p-4">
-      <h3 class="text-xl font-semibold mb-2">Examenes</h3>
-      <p class="mb-2"><strong></strong>Ejemplo</p>
-      <div class="grid grid-cols-2 gap-4">
-
-        <div class="flex flex-col justify-center items-center gap-2 bg-zinc-700 p-4 rounded-lg">
-          <p class="text-sm text-zinc-300">12/03/24</p>
-          <p class="text-xl">Examen 1</p>
-          <p class="font-extrabold"> 95/100</p>
+      <h3 class="text-xl font-semibold mb-2">Exámenes</h3>
+      {examDetails.length === 0 ? (
+        <p class="mb-2">No se encontraron exámenes para este estudiante.</p>
+      ) : (
+        <div class="grid grid-cols-2 gap-4">
+          {examDetails.map(({ exam, nota }) => (
+            <div
+              class="flex flex-col justify-center items-center gap-2 bg-zinc-700 p-4 rounded-lg text-center"
+            >
+              <p class="text-sm text-zinc-300">
+                {new Date(exam.exam_date).toLocaleDateString()}
+              </p>
+              <p class="text-xl">{exam.name}</p>
+              <p class="font-extrabold">
+                {nota !== null ? nota : "Sin calificar"}
+              </p>
+            </div>
+          ))}
         </div>
-
-        <div class="flex flex-col justify-center items-center gap-2 bg-zinc-700 p-4 rounded-lg">
-          <p class="text-sm text-zinc-300">12/03/24</p>
-          <p class="text-xl">Examen 2</p>
-          <p class="font-extrabold"> 95/100</p>
-        </div>
-      </div>
-
+      )}
     </div>
   </section>
 </Layout>

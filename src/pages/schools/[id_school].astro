@@ -17,7 +17,7 @@ if (!id_school || typeof id_school !== "string") {
 // Obtener datos
 const [school, courses] = await Promise.all([
   db.select().from(School).where(eq(School.id, id_school)).then(res => res[0]),
-  db.select().from(Course).where(eq(Course.school_course, id_school))
+  db.select().from(Course).where(eq(Course.school_id, id_school))
 ]);
 
 if (!school) {
@@ -49,7 +49,7 @@ if (!school) {
               href={`/schools/${school.id}/courses/${course.id}`} 
               class="block"
             >
-              <div class="flex items-center justify-center font-black text-xl text-zinc-900 p-4  rounded-xl text-center">
+              <div id="course" class="flex items-center justify-center font-black text-2xl text-white p-4 rounded-xl text-center">
                 {course.name}
               </div>
             </a>
