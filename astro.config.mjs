@@ -11,8 +11,16 @@ import auth from 'auth-astro';
 export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
+    resolve: {
+      alias: {
+        '@': '/src', // Ruta absoluta
+      }
+    }
+  
   },
+  
   output: "server",
+
   adapter: vercel({
     edgeMiddleware: true,
   }),
