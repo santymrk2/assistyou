@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { db, eq, and, Attendance } from 'astro:db';
+import { db, Attendance } from 'astro:db';
 
 export const POST: APIRoute= async ({ request }) => {
   try {

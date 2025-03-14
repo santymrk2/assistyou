@@ -1,4 +1,3 @@
-import '../../chunks/page-ssr_DU8zOrak.mjs';
 import { c as createComponent, a as createAstro, f as renderComponent, e as renderTemplate, m as maybeRenderHead, b as addAttribute } from '../../chunks/astro/server_Dr68GnM3.mjs';
 import { $ as $$Layout } from '../../chunks/Layout_CSinN2tU.mjs';
 import { d as db, a as School, C as Course } from '../../chunks/_astro_db_DK6vn_a7.mjs';

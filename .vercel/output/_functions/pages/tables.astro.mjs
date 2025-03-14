@@ -1,4 +1,3 @@
-import '../chunks/page-ssr_DU8zOrak.mjs';
 import { c as createComponent, a as createAstro, r as renderHead, e as renderTemplate } from '../chunks/astro/server_Dr68GnM3.mjs';
 import { g as getSession } from '../chunks/server_DBcLqzP5.mjs';
 export { renderers } from '../renderers.mjs';
