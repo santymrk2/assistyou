@@ -1,10 +1,22 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { db, eq, School, Course } from "astro:db";
+import { generateId } from "../../lib/utils";
+import { getSession } from "auth-astro/server";
+import { db, eq, and, School, Course } from "astro:db";
 
 export const prerender = false;
 
 const { id_school } = Astro.params;
+
+const session = await getSession(Astro.request);
+if (!session) {
+  return new Response("No hay sesión activa", {
+    status: 401,
+    statusText: "Unauthorized",
+  });
+}
+
+const userId = session.user.email ? generateId(session.user.email) : "";
 
 // Validar que el ID existe
 if (!id_school || typeof id_school !== "string") {
@@ -16,8 +28,8 @@ if (!id_school || typeof id_school !== "string") {
 
 // Obtener datos
 const [school, courses] = await Promise.all([
-  db.select().from(School).where(eq(School.id, id_school)).then(res => res[0]),
-  db.select().from(Course).where(eq(Course.school_id, id_school))
+  db.select().from(School).where(and(eq(School.id, id_school), eq(School.user_id, userId))).then(res => res[0]),
+  db.select().from(Course).where(and(eq(Course.school_id, id_school),eq(School.user_id, userId)))
 ]);
 
 if (!school) {
@@ -29,7 +41,7 @@ if (!school) {
 ---
 
 <Layout>
-  <section class="p-4">
+  <section class="p-4 w-full">
     <div class="mb-6">
       <a href="/" class="text-orange-600 ">
         &larr; Volver a página principal
@@ -49,7 +61,7 @@ if (!school) {
               href={`/schools/${school.id}/courses/${course.id}`} 
               class="block"
             >
-              <div id="course" class="flex items-center justify-center font-black text-2xl text-white p-4 rounded-xl text-center">
+              <div transition:persist id={`course-` + course.name } class="flex items-center justify-center font-black text-2xl text-white p-4 rounded-xl text-center">
                 {course.name}
               </div>
             </a>

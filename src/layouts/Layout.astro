@@ -1,4 +1,5 @@
 ---
+import { ClientRouter } from "astro:transitions";
 import "../styles/global.css"
 // Supports weights 100-900
 import '@fontsource-variable/inter';
@@ -10,9 +11,10 @@ import '@fontsource-variable/inter';
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/AY.svg" />
 		<meta name="generator" content={Astro.generator} />
+		<ClientRouter />
 		<title>Astro Basics</title>
 	</head>
-	<body class="w-full dark:bg-zinc-900 font-sans" class:dark="dark">
+	<body class="w-full dark:bg-zinc-900 font-sans flex flex-col justify-content items-center" class:dark="dark">
 		<slot />
 	</body>
 </html>

@@ -122,13 +122,26 @@ const examDetails = await Promise.all(
 
     <div class="dark:text-white p-4">
       <h3 class="text-xl font-semibold mb-2">Asistencia</h3>
-      <p class="mb-2"><strong>Total de clases:</strong> {totalClasses}</p>
-      <p class="mb-2"><strong>Clases asistidas:</strong> {attendedClasses}</p>
-      <p class="mb-2">
-        <strong>Porcentaje de asistencia:</strong>
-        {attendancePercentage.toFixed(2)}%
-      </p>
+      <div class="mb-2 flex flex-col items-center justify-center">
+        <div class="relative">
+          <svg class="w-64 h-40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">
+            <!-- Arco base en gris -->
+            <path d="M 30 100 A 70 70 0 0 1 170 100" fill="none" stroke="lightgray" stroke-width="10" stroke-linecap="round" />
+            
+            <!-- Arco de progreso -->
+            <path id="progress" d="M 30 100 A 70 70 0 0 1 170 100" fill="none" stroke="orange" stroke-width="10" stroke-linecap="round" stroke-dasharray="0 440" />
+            
+            <!-- Texto de asistencia -->
+            <text x="100" y="80" font-family="Inter" font-size="18" font-weight="bold" text-anchor="middle">
+              <tspan id="attendance-text">0/0</tspan>
+            </text>
+          </svg>
+        </div>
+      </div>
+      <p class="mb-2 text-center"><span id="attendance-percentage">0</span>%</p>
     </div>
+    
+
 
     <div class="dark:text-white p-4">
       <h3 class="text-xl font-semibold mb-2">Exámenes</h3>
@@ -154,3 +167,36 @@ const examDetails = await Promise.all(
     </div>
   </section>
 </Layout>
+
+
+<script>
+  function updateAttendance(attendedClasses, totalClasses) {
+    // Calcular el porcentaje de asistencia
+    const percentage = totalClasses > 0 ? (attendedClasses / totalClasses) * 100 : 0;
+    
+    // Actualizar el texto de asistencia
+    document.getElementById("attendance-text").textContent = `${attendedClasses}/${totalClasses}`;
+    
+    // Actualizar el porcentaje mostrado
+    document.getElementById("attendance-percentage").textContent = percentage.toFixed(2);
+    
+    // Actualizar el arco de progreso
+    const strokeValue = (percentage / 100) * 220;
+    document.getElementById("progress").setAttribute("stroke-dasharray", `${strokeValue} 440`);
+    
+    // Cambiar el color según el porcentaje
+    let color = "blue";
+    if (percentage > 70) {
+      color = "green";
+    } else if (percentage > 40) {
+      color = "orange";
+    } else {
+      color = "red";
+    }
+    document.getElementById("progress").setAttribute("stroke", color);
+  }
+  
+  // Uso del componente
+  // Reemplaza estos valores con las variables reales {attendedClasses} y {totalClasses}
+  updateAttendance(12, 14);
+</script>
