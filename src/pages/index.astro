@@ -5,6 +5,8 @@ import Schools from "../components/Schools.astro";
 import { getSession } from "auth-astro/server";
 
 const session = await getSession(Astro.request);
+
+export const prerender = false;
 ---
 
 <Layout>
@@ -49,7 +51,7 @@ const session = await getSession(Astro.request);
 </Layout>
 
 <script>
-	import { $ } from "@lib/dom-selector";
+	import { $ } from "../lib/dom-selector";
 	const { signIn, signOut } = await import("auth-astro/client");
 
 	const $login = $("#login");
