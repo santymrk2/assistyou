@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Schools from "../components/Schools.astro";
-
+import Logo from "../assets/AY.svg";
 import { getSession } from "auth-astro/server";
 
 const session = await getSession(Astro.request);
@@ -27,6 +27,7 @@ export const prerender = false;
 				class="text-4xl font-bold text-center dark:text-white flex justify-center"
 			>
 				Assist<p class="text-orange-600 font-black">YOU</p>
+				<Logo />
 			</h1>
 			<p class="text-center dark:text-white">
 				Bienvenido a la plataforma de asistencia para profesores
