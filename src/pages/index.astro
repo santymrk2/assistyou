@@ -1,6 +1,6 @@
 ---
-import Layout from "@/layouts/Layout.astro";
-import Schools from "@/components/Schools.astro";
+import Layout from "../layouts/Layout.astro";
+import Schools from "../components/Schools.astro";
 
 import { getSession } from "auth-astro/server";
 
@@ -51,7 +51,7 @@ export const prerender = false;
 </Layout>
 
 <script>
-	import { $ } from "@/lib/dom-selector";
+	import { $ } from "../lib/dom-selector";
 	const { signIn, signOut } = await import("auth-astro/client");
 
 	const $login = $("#login");
