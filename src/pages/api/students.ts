@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { db, Student } from 'astro:db';
-
+/*
 const res = (
   body: string,
   {status, statusText, headers}: {status?: number, statusText?: string, headers?: Headers}
@@ -24,4 +24,4 @@ export const POST: APIRoute = async ({ request, params }) => {
   } catch (error: any) {
     return res(error.message, { status: 500 });
   }
-};
+};*/

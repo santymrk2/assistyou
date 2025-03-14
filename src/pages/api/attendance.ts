@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { db, Attendance } from 'astro:db';
-
+/*
 export const POST: APIRoute= async ({ request }) => {
   try {
     const data = await request.json();
@@ -33,4 +33,4 @@ export const POST: APIRoute= async ({ request }) => {
       }
     });
   }
-}
+}*/
