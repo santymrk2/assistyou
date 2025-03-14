@@ -23,16 +23,7 @@ importers:
       '@fontsource-variable/inter':
         specifier: ^5.2.5
         version: 5.2.5
-      '@fontsource-variable/noto-sans':
-        specifier: ^5.2.5
-        version: 5.2.5
       '@fontsource-variable/nunito-sans':
-        specifier: ^5.2.5
-        version: 5.2.5
-      '@fontsource/barlow':
-        specifier: ^5.2.5
-        version: 5.2.5
-      '@fontsource/poppins':
         specifier: ^5.2.5
         version: 5.2.5
       '@tailwindcss/vite':
@@ -310,17 +301,8 @@ packages:
   '@fontsource-variable/inter@5.2.5':
     resolution: {integrity: sha512-TrWffUAFOnT8zroE9YmGybagoOgM/HjRqMQ8k9R0vVgXlnUh/vnpbGPAS/Caz1KIlOPnPGh6fvJbb7DHbFCncA==}
 
-  '@fontsource-variable/noto-sans@5.2.5':
-    resolution: {integrity: sha512-eH6AxZEtLAq7AaqDK642UnIu/dsfNPkgUdDxX8aGGFOhw4h+J1MpWxk03sehzQvxgXw2lCprmoz0AFfvSpYNYQ==}
-
   '@fontsource-variable/nunito-sans@5.2.5':
     resolution: {integrity: sha512-J8Bi9OBUQvXwDvt9QofXD4joorYy3O9+4AU7cPx/ioa+xlH4HjAJNhA/N+nCu7IOMjFsbEbM2ZZCWQrsmQMsQw==}
-
-  '@fontsource/barlow@5.2.5':
-    resolution: {integrity: sha512-p+2XXEM7v85kbn0Dh8g0YLMjTCDiRCAi9nHik6w/2owZ9CkT1yYGGgaUMshJRqykh7efv1gE0QxAkOhZHd8tEg==}
-
-  '@fontsource/poppins@5.2.5':
-    resolution: {integrity: sha512-1S3k45pZOz2jqGPPqKw0in3uxFwnB+d5jSU8Tp9YwH/dIJptE3jdkQbYN0QD861GtuOpn6QhPW/yKt1w7hVRBQ==}
 
   '@img/sharp-darwin-arm64@0.33.5':
     resolution: {integrity: sha512-UT4p+iz/2H4twwAoLCqfA9UH5pI6DggwKEGuaPy7nCVQ8ZsiY5PIcrRvD1DzuY3qYL07NtIQcWnBSY/heikIFQ==}
@@ -2720,13 +2702,7 @@ snapshots:
 
   '@fontsource-variable/inter@5.2.5': {}
 
-  '@fontsource-variable/noto-sans@5.2.5': {}
-
   '@fontsource-variable/nunito-sans@5.2.5': {}
-
-  '@fontsource/barlow@5.2.5': {}
-
-  '@fontsource/poppins@5.2.5': {}
 
   '@img/sharp-darwin-arm64@0.33.5':
     optionalDependencies:
