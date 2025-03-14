@@ -13,7 +13,7 @@ export default defineConfig({
     plugins: [tailwindcss()], 
   },
   
-  output: "server",
+  output: "static",
 
   adapter: vercel({
     edgeMiddleware: true,
