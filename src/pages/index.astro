@@ -1,7 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Schools from "../components/Schools.astro";
-import Logo from "../assets/AY.svg";
 import { getSession } from "auth-astro/server";
 
 const session = await getSession(Astro.request);
@@ -26,8 +25,13 @@ export const prerender = false;
 			<h1
 				class="text-4xl font-bold text-center dark:text-white flex justify-center"
 			>
+			<!--
 				Assist<p class="text-orange-600 font-black">YOU</p>
-				<Logo />
+			
+			-->
+
+				<svg viewBox="0 0 148 93" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#a)"><path d="M27.2727 93.0909H0L30.7273 0h34.5454L96 93.0909H68.7273L48.3636 25.6364h-.7272L27.2727 93.0909Zm-5.0909-36.7273h51.2728v18.9091H22.1818V56.3636Z" fill="#fff"/><path fill-rule="evenodd" clip-rule="evenodd" d="m70.5366 0 30.7564 93h27.385l-10.833-32.756L148.145 0h-29.103L106.3 25.334 97.9216 0h-27.385Z" fill="#F54A00"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h148v93H0z"/></clipPath></defs></svg>
+
 			</h1>
 			<p class="text-center dark:text-white">
 				Bienvenido a la plataforma de asistencia para profesores
