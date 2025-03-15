@@ -2,12 +2,24 @@ import { db,  AppUser, School, Course, Student, SemesterPeriod, Attendance, Exam
 
 export default async function seed() {
   // Inserta un usuario para las referencias
-
-
+  await db.insert(AppUser).values([
+    {
+      id: '6f3da1a6ac76187d85b841453df2a695fe121393ee384a21c96a6b4fba5b113a',
+      username: 'Santiago Mercado',
+      email: 'santymerk2@gmail.com'
+    },
+    {
+      id: 'j3i4oh23uh483u4hf8023h4203hu03ihwergsd',
+      username: 'Franco Agustino',
+      email: 'francis@gmail.com'
+    }
+  ])
   await db.insert(School).values([
     { id: 'sanpablo', name: 'San Pablo', user_id: '6f3da1a6ac76187d85b841453df2a695fe121393ee384a21c96a6b4fba5b113a'},
     { id: 'godspell', name: 'Godspell', user_id: '6f3da1a6ac76187d85b841453df2a695fe121393ee384a21c96a6b4fba5b113a'},
     { id: 'complejo', name: 'Complejo', user_id: '6f3da1a6ac76187d85b841453df2a695fe121393ee384a21c96a6b4fba5b113a'},
+    { id: 'complejo-j3i4oh23uh4', name: 'Complejo', user_id: 'j3i4oh23uh483u4hf8023h4203hu03ihwergsd'},
+
   ]);
 
   await db.insert(Course).values([

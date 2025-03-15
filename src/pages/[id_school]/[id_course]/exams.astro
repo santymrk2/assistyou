@@ -1,0 +1,76 @@
+---
+import CourseLayout from "../../../layouts/CourseLayout.astro";
+import { db, eq, and, Exam, SemesterPeriod } from "astro:db";
+import { getCourseData } from "../../../lib/courseUtils";
+
+export const prerender = false;
+
+const { id_school, id_course } = Astro.params;
+
+if (!id_school || !id_course) {
+  return new Response("Parámetros inválidos", {
+    status: 400,
+    statusText: "Bad Request",
+  });
+}
+
+const result = await getCourseData(Astro.request, id_school, id_course);
+
+if (result.error) {
+  return new Response(result.error, {
+    status: result.status,
+    statusText: result.statusText,
+  });
+}
+
+const { school, course, userId } = result;
+
+const exams = await db
+  .select()
+  .from(Exam)
+  .innerJoin(SemesterPeriod, eq(Exam.semester_period_id, SemesterPeriod.id))
+  .where(and(eq(Exam.course_id, id_course), eq(Exam.user_id, userId)));
+---
+
+<CourseLayout school={school} course={course} activeTab="exams">
+  <div>
+    <h2 class="text-2xl font-semibold mb-4 dark:text-white">Exámenes</h2>
+    {
+      exams.length === 0 ? (
+        <p class="text-gray-400">
+          No hay exámenes registrados para este curso.
+        </p>
+      ) : (
+        <div class="grid grid-cols-2 gap-3 justify-items-center">
+          {exams.map(({ Exam, SemesterPeriod }) => (
+            <a class="w-full h-full">
+              <div class="flex flex-col justify-center items-center gap-2 bg-zinc-700 p-4 rounded-lg text-center group hover:bg-white text-zinc-300 hover:text-zinc-700 transition-all">
+                <p class="text-sm">
+                  {new Date(Exam.exam_date).toLocaleDateString()}
+                </p>
+                <p class="text-xl font-bold text-white group-hover:text-zinc-700">
+                  {Exam.name}
+                </p>
+                <p class="text-xs">{SemesterPeriod.name}</p>
+              </div>
+            </a>
+          ))}
+          <a class="bg-orange-600 hover:bg-orange-700 text-zinc-900 font-semibold rounded-lg flex justify-center items-center transition-all h-full w-full">
+            <svg
+              class="stroke-2 stroke-white size-10"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M7 12h5m0 0h5m-5 0V7m0 5v5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </a>
+        </div>
+      )
+    }
+  </div>
+</CourseLayout>

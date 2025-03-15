@@ -1,0 +1,73 @@
+---
+export interface Props {
+  id: string;
+  title: string;
+  cancelButtonText?: string;
+  submitButtonText?: string;
+}
+
+const { 
+  id, 
+  title, 
+  cancelButtonText = "Cancelar", 
+  submitButtonText = "Guardar" 
+} = Astro.props;
+---
+
+<div id={id} class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden p-4">
+  <div class="bg-white dark:bg-zinc-800 p-4 sm:p-6 rounded-xl w-full max-w-sm sm:max-w-md">
+    <h2 class="text-lg sm:text-xl font-bold mb-3 dark:text-white">{title}</h2>
+    <form id={`${id}Form`} class="flex flex-col gap-3">
+      <slot />
+      <div class="flex flex-col sm:flex-row sm:justify-end gap-2 mt-3">
+        <button 
+          type="button" 
+          id={`cancel${id}`}
+          class="px-4 py-2 border rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 dark:text-white transition-colors w-full sm:w-auto"
+        >
+          {cancelButtonText}
+        </button>
+        <button 
+          type="submit"
+          class="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors w-full sm:w-auto"
+        >
+          {submitButtonText}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script define:vars={{ id }}>
+  // Configuración del modal
+  const $modal = document.getElementById(id);
+  const $cancelButton = document.getElementById(`cancel${id}`);
+  const $form = document.getElementById(`${id}Form`);
+  
+  // Ocultar modal
+  if ($cancelButton) {
+    $cancelButton.onclick = () => {
+      $modal.classList.add("hidden");
+    };
+  }
+  
+  // Cerrar modal al hacer clic fuera del contenido
+  if ($modal) {
+    $modal.addEventListener('click', (e) => {
+      if (e.target === $modal) {
+        $modal.classList.add("hidden");
+      }
+    });
+  }
+  
+  // Exportar funciones para uso externo
+  if ($modal) {
+    window[`show${id}`] = () => {
+      $modal.classList.remove("hidden");
+    };
+    
+    window[`hide${id}`] = () => {
+      $modal.classList.add("hidden");
+    };
+  }
+</script>

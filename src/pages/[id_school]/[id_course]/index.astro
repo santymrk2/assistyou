@@ -1,0 +1,68 @@
+---
+import CourseLayout from "../../../layouts/CourseLayout.astro";
+import { db, eq, and, Student } from "astro:db";
+import { getCourseData } from "../../../lib/courseUtils";
+
+export const prerender = false;
+
+const { id_school, id_course } = Astro.params;
+
+if (!id_school || !id_course) {
+  return new Response("Parámetros inválidos", {
+    status: 400,
+    statusText: "Bad Request",
+  });
+}
+
+const result = await getCourseData(Astro.request, id_school, id_course);
+
+if (result.error) {
+  return new Response(result.error, {
+    status: result.status,
+    statusText: result.statusText,
+  });
+}
+
+const { school, course, userId } = result;
+
+const students = await db
+  .select()
+  .from(Student)
+  .where(and(eq(Student.course_id, id_course), eq(Student.user_id, userId)));
+---
+
+<CourseLayout school={school} course={course} activeTab="index">
+  <div>
+    <h2 class="text-2xl font-semibold mb-4 dark:text-white">Asistencias</h2>
+    { students.length === 0 ? (
+        <p class="text-gray-400">
+          No hay estudiantes registrados en este curso.
+        </p>
+      ) : (
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-100 dark:bg-zinc-900">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Nombre
+                </th>
+                {/* Puedes agregar más encabezados aquí */}
+              </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-zinc-900 divide-y divide-gray-200">
+              {students.map((student) => (
+                <tr class="hover:bg-gray-100 dark:hover:bg-zinc-800">
+                  <td class="px-6 py-4 whitespace-nowrap dark:text-white">
+                    <a href={`/${school.id}/${course.id}/${student.id}`}>
+                      {student.name}
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )
+    }
+  </div>
+</CourseLayout>

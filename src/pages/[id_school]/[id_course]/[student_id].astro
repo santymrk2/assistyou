@@ -1,5 +1,5 @@
 ---
-import Layout from "../../../../../../layouts/Layout.astro";
+import Layout from "../../../layouts/Layout.astro";
 import {
   db,
   eq,
@@ -80,6 +80,15 @@ const attendedClasses = attendedAttendances.length;
 const attendancePercentage =
   totalClasses > 0 ? (attendedClasses / totalClasses) * 100 : 0;
 
+// Determine the color class based on the percentage of attendance
+let attendanceColorClass = "text-red-600 stroke-red-600";
+if (attendancePercentage > 70) {
+  attendanceColorClass = "text-green-600 stroke-green-600";
+} else if (attendancePercentage > 40) {
+  attendanceColorClass = "text-orange-600 stroke-orange-600";
+}
+
+
 // Obtener datos de exámenes: unir la tabla ExamStudent con Exam para obtener detalles del examen y la nota
 const examRecords = await db
   .select()
@@ -102,7 +111,7 @@ const examDetails = await Promise.all(
   <section class="p-4">
     <div class="mb-6">
       <a
-        href={`/schools/${school.id}/courses/${course.id}`}
+        href={`/${school.id}/${course.id}`}
         class="text-orange-600 hover:underline"
       >
         &larr; Volver a {course.name}
@@ -113,47 +122,58 @@ const examDetails = await Promise.all(
       Perfil del Estudiante
     </h1>
 
-    <div class="rounded-lg p-4 dark:text-white">
+    <div class="rounded-lg p-4 dark:text-white  bg-zinc-700 rounded-xl mb-4">
       <h2 class="text-2xl font-semibold mb-4">{student.name}</h2>
       <p class="mb-2"><strong>Curso:</strong> {course.name}</p>
       <p class="mb-2"><strong>Escuela:</strong> {school.name}</p>
       <!-- Se puede agregar más información del estudiante aquí -->
     </div>
 
-    <div class="dark:text-white p-4">
+    <div class="dark:text-white p-4 bg-zinc-700 rounded-xl mb-4">
       <h3 class="text-xl font-semibold mb-2">Asistencia</h3>
       <div class="mb-2 flex flex-col items-center justify-center">
-        <div class="relative">
-          <svg class="w-64 h-40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">
+        <div class="relative w-64 h-40">
+          <!-- SVG with semicircle -->
+          <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">
             <!-- Arco base en gris -->
             <path d="M 30 100 A 70 70 0 0 1 170 100" fill="none" stroke="lightgray" stroke-width="10" stroke-linecap="round" />
             
-            <!-- Arco de progreso -->
-            <path id="progress" d="M 30 100 A 70 70 0 0 1 170 100" fill="none" stroke="orange" stroke-width="10" stroke-linecap="round" stroke-dasharray="0 440" />
-            
-            <!-- Texto de asistencia -->
-            <text x="100" y="80" font-family="Inter" font-size="18" font-weight="bold" text-anchor="middle">
-              <tspan id="attendance-text">0/0</tspan>
-            </text>
+            <!-- Arco de progreso con color dinámico usando class -->
+            <path 
+              id="progress" 
+              d="M 30 100 A 70 70 0 0 1 170 100" 
+              fill="none" 
+              class={attendanceColorClass}
+              stroke-width="10" 
+              stroke-linecap="round" 
+              stroke-dasharray={`${(attendancePercentage / 100) * 220} 440`} 
+            />
           </svg>
+          
+          <!-- Overlaid text content positioned at the bottom center -->
+          <div class="absolute inset-x-0 bottom-0 flex flex-col items-center justify-center pb-4">
+            <div class="flex flex-col justify-center items-center">
+              <p class={`font-semibold text-lg ${attendanceColorClass}`}>{attendedClasses}/{totalClasses}</p>
+              <p class={`font-bold text-lg ${attendanceColorClass}`}>{attendancePercentage}%</p>
+  
+            </div>
+          </div>
         </div>
       </div>
-      <p class="mb-2 text-center"><span id="attendance-percentage">0</span>%</p>
     </div>
     
-
-
-    <div class="dark:text-white p-4">
+    <div class="dark:text-white p-4 bg-zinc-700 rounded-xl">
       <h3 class="text-xl font-semibold mb-2">Exámenes</h3>
       {examDetails.length === 0 ? (
         <p class="mb-2">No se encontraron exámenes para este estudiante.</p>
       ) : (
         <div class="grid grid-cols-2 gap-4">
           {examDetails.map(({ exam, nota }) => (
+            <a>
             <div
-              class="flex flex-col justify-center items-center gap-2 bg-zinc-700 p-4 rounded-lg text-center"
+              class="flex flex-col justify-center items-center gap-2 bg-zinc-200 text-zinc-700 p-4 rounded-lg text-center select-none"
             >
-              <p class="text-sm text-zinc-300">
+              <p class="text-sm text-zinc-500">
                 {new Date(exam.exam_date).toLocaleDateString()}
               </p>
               <p class="text-xl">{exam.name}</p>
@@ -161,42 +181,10 @@ const examDetails = await Promise.all(
                 {nota !== null ? nota : "Sin calificar"}
               </p>
             </div>
+          </a>
           ))}
         </div>
       )}
     </div>
   </section>
 </Layout>
-
-
-<script>
-  function updateAttendance(attendedClasses, totalClasses) {
-    // Calcular el porcentaje de asistencia
-    const percentage = totalClasses > 0 ? (attendedClasses / totalClasses) * 100 : 0;
-    
-    // Actualizar el texto de asistencia
-    document.getElementById("attendance-text").textContent = `${attendedClasses}/${totalClasses}`;
-    
-    // Actualizar el porcentaje mostrado
-    document.getElementById("attendance-percentage").textContent = percentage.toFixed(2);
-    
-    // Actualizar el arco de progreso
-    const strokeValue = (percentage / 100) * 220;
-    document.getElementById("progress").setAttribute("stroke-dasharray", `${strokeValue} 440`);
-    
-    // Cambiar el color según el porcentaje
-    let color = "blue";
-    if (percentage > 70) {
-      color = "green";
-    } else if (percentage > 40) {
-      color = "orange";
-    } else {
-      color = "red";
-    }
-    document.getElementById("progress").setAttribute("stroke", color);
-  }
-  
-  // Uso del componente
-  // Reemplaza estos valores con las variables reales {attendedClasses} y {totalClasses}
-  updateAttendance(12, 14);
-</script>

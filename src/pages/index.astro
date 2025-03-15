@@ -7,32 +7,41 @@ import { generateId } from "../lib/utils";
 import { db, eq, School, AppUser } from "astro:db";
 
 const session = await getSession(Astro.request);
-
 let appUser;
-let schools
-if (session) {
-	if (session.user.email) {
-		appUser = await db
-			.select()
-			.from(AppUser)
-			.where(eq(AppUser.id, generateId(session.user.email)))
-			.then((res) => res[0]);
-		if (!appUser) {
-			await db.insert(AppUser).values({
-				id: generateId(session.user.email),
-				username: session.user.name,
-				email: session.user.email,
-			});
-		}
-	}
+let schools = [];
 
-	schools = await db
-		.select()
-		.from(School)
-		.where(eq(School.user_id, appUser.id ));
-
+if (session && session.user?.email) {
+    const sessionId = generateId(session.user.email);
+    console.log("hay session");
+    console.log("Hay email, por lo que se verifica que exista en base");
+    
+    // Verificar si el usuario existe en la base de datos
+    appUser = await db
+        .select()
+        .from(AppUser)
+        .where(eq(AppUser.id, sessionId))
+        .then((res) => res[0]);
+    
+    if (!appUser) {
+        console.log("No se encontro un appUser y se agrega a base");
+        await db.insert(AppUser).values({
+            id: sessionId,
+            username: session.user.name,
+            email: session.user.email,
+        });
+    }
+    
+    // Obtener las escuelas DIRECTAMENTE de la base de datos
+    // en lugar de hacer una petición fetch a tu propia API
+    schools = await db
+        .select()
+        .from(School)
+        .where(eq(School.user_id, sessionId));
+    
+    console.log("Schools: ", schools);
 }
 ---
+
 
 <Layout>
 	<main class="flex flex-col justify-center items-center">
@@ -60,7 +69,6 @@ if (session) {
 
 		{
 			session ? (
-				console.log(appUser),
 				<Schools schools={schools} />
 			) : (
 				<div class="flex gap-4">
