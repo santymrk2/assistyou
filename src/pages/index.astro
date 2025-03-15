@@ -31,8 +31,6 @@ if (session && session.user?.email) {
         });
     }
     
-    // Obtener las escuelas DIRECTAMENTE de la base de datos
-    // en lugar de hacer una petición fetch a tu propia API
     schools = await db
         .select()
         .from(School)
