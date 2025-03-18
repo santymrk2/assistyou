@@ -40,10 +40,10 @@ const students = await db
       <h1 class="text-center text-2xl font-semibold text-white" id="courseData" data-course-id={id_course}>Alumnos</h1>
       <button
         id="addStudentBtn"
-        class="bg-orange-600 hover:bg-orange-700 text-white font-bold mx-4 rounded-lg transition-colors"
+        class="bg-orange-500/20 hover:scale-104 text-white font-bold mx-4 rounded-lg transition-all"
       >
         <svg
-          class="stroke-2 stroke-white size-8 group-hover:stroke-zinc-700"
+          class="stroke-2 stroke-orange-500 size-8 group-hover:stroke-zinc-700"
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -73,23 +73,23 @@ const students = await db
 
     {
       students.length === 0 ? (
-        <p class="text-gray-400">
+        <p class="text-zinc-400">
           No hay estudiantes registrados en este curso.
         </p>
       ) : (
         <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-100 dark:bg-zinc-900">
+          <table class="min-w-full divide-y divide-zinc-200">
+            <thead class="bg-zinc-100 dark:bg-zinc-900">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th class="px-6 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
                   Nombre
                 </th>
                 {/* Puedes agregar más encabezados aquí */}
               </tr>
             </thead>
-            <tbody class="bg-white dark:bg-zinc-900 divide-y divide-gray-200">
+            <tbody class="bg-white dark:bg-zinc-900 divide-y divide-zinc-200">
               {students.map((student) => (
-                <tr class="hover:bg-gray-100 dark:hover:bg-zinc-800">
+                <tr class="hover:bg-zinc-100 dark:hover:bg-zinc-500/20">
                   <td class="px-6 py-4 whitespace-nowrap dark:text-white">
                     <a href={`/${school.id}/${course.id}/${student.id}`}>
                       {student.name}
