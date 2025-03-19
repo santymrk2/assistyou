@@ -1,7 +1,7 @@
 ---
 import Modal from "../../../components/Modal.astro";
 import CourseLayout from "../../../layouts/CourseLayout.astro";
-import { db, eq, and, Attendance as AttendanceModel } from "astro:db";
+import { db, eq, and, Attendance as AttendanceModel, SemesterPeriod } from "astro:db";
 import { getCourseData } from "../../../lib/courseUtils";
 
 export const prerender = false;
@@ -15,16 +15,17 @@ if (!id_school || !id_course) {
   });
 }
 
-const result = await getCourseData(Astro.request, id_school, id_course);
+const resultCourse = await getCourseData(Astro.request, id_school, id_course);
 
-if (result.error) {
-  return new Response(result.error, {
-    status: result.status,
-    statusText: result.statusText,
+
+if (resultCourse.error) {
+  return new Response(resultCourse.error, {
+    status: resultCourse.status,
+    statusText: resultCourse.statusText,
   });
 }
 
-const { school, course, userId } = result;
+const { school, course, userId } = resultCourse;
 
 const attendanceData = await db
   .select()
@@ -35,17 +36,118 @@ const attendanceData = await db
       eq(AttendanceModel.user_id, userId),
     ),
   );
+
+  const semesterPeriodData = await await db
+  .select()
+  .from(SemesterPeriod)
+  .where(
+    and(
+      eq(SemesterPeriod.course_id, id_course),
+      eq(SemesterPeriod.user_id, userId),
+    ),
+  );
 ---
 
 <CourseLayout school={school} course={course} activeTab="attendance">
   <div>
     <div
-      class="flex justify-between items-center w-full md:max-w-xl max-w-2xl my-8"
+      class="flex justify-between items-center w-full my-8"
+    >
+      <h1 class="text-center text-2xl font-semibold text-white">Periodos</h1>
+      <button
+        id="addPeriodBtn"
+        class="bg-orange-500/20 hover:scale-104 text-white font-bold mx-2 rounded-lg transition-colors transition-all"
+      >
+        <svg
+          class="stroke-2 stroke-orange-500 size-8 group-hover:stroke-zinc-700"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M7 12h5m0 0h5m-5 0V7m0 5v5"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    </div>
+
+    <Modal id="PeriodModal" title="Añadir Periodo">
+      <div>
+        <label for="periodName" class="block mb-2 dark:text-white"
+          >Nombre del periodo</label
+        >
+        <input
+          type="text"
+          id="periodName"
+          class="w-full p-2 border rounded-lg dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
+          required
+        />
+      </div>
+
+      <div>
+        <label for="periodStart" class="block mb-2 dark:text-white"
+          >Inicio de periodo</label
+        >
+        <input
+          type="date"
+          id="periodStart"
+          class="w-full p-2 border rounded-lg dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
+          required
+        />
+      </div>
+
+
+      <div>
+        <label for="periodEnd" class="block mb-2 dark:text-white"
+          >Fin del periodo</label
+        >
+        <input
+          type="date"
+          id="periodEnd"
+          class="w-full p-2 border rounded-lg dark:bg-zinc-700 dark:text-white dark:border-zinc-600"
+          required
+        />
+      </div>
+    </Modal>
+
+    {
+      semesterPeriodData.length === 0 ? (
+        <p class="text-zinc-400">
+          No hay periodos registrados para este curso.
+        </p>
+      ) : (
+        <ul class="flex flex-col justify-center items-center gap-3">
+          {semesterPeriodData.map((period) => (
+              <li class="flex flex-col sm:flex-row justify-center gap-4 text-zinc-500 items-center rounded-md bg-zinc-500/20 p-4 select-none w-full h-full">
+                <p class="font-bold">
+                  {period.name}
+                </p>
+
+                <div class=""> 
+                  <p class="text-xs">Fecha de inicio:</p>
+                  <p class="bg-zinc-900 rounded-md p-2">{(period.start_date).toLocaleDateString()}</p>
+                </div>
+
+                <div class=""> 
+                  <p class="text-xs">Fecha de fin:</p>
+                  <p class="bg-zinc-900 rounded-md p-2">{(period.end_date).toLocaleDateString()}</p>
+                </div>
+              </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+
+  <div>
+    <div
+      class="flex justify-between items-center w-full my-8"
     >
       <h1 class="text-center text-2xl font-semibold text-white">Asistencias</h1>
       <button
         id="addAttBtn"
-        class="bg-orange-500/20 hover:scale-104 text-white font-bold mx-4 rounded-lg transition-colors transition-all"
+        class="bg-orange-500/20 hover:scale-104 text-white font-bold mx-2 rounded-lg transition-colors transition-all"
       >
         <svg
           class="stroke-2 stroke-orange-500 size-8 group-hover:stroke-zinc-700"
@@ -64,7 +166,7 @@ const attendanceData = await db
     <Modal id="AttModal" title="Añadir Asistencia">
       <div>
         <label for="attName" class="block mb-2 dark:text-white"
-          >Nombre del alumno</label
+          >Fecha de clase</label
         >
         <input
           type="date"
@@ -83,7 +185,7 @@ const attendanceData = await db
       ) : (
         <ul class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {attendanceData.map((att) => (
-            <a href={`/${school.id}/${course.id}/${att.id}`} class="h-full w-full">
+            <a href={`/${school.id}/${course.id}/attendance/${att.id}`} class="h-full w-full">
               <li class="flex justify-center text-zinc-500 items-center rounded-md bg-zinc-500/20 p-2 select-none hover:scale-104 transition-all">
                 {new Date(att.attendance_date).toLocaleDateString()}
               </li>
@@ -93,6 +195,8 @@ const attendanceData = await db
       )
     }
   </div>
+
+  
 </CourseLayout>
 
 
@@ -125,12 +229,12 @@ const attendanceData = await db
 
 
           try {
-              const response = await fetch("/api/", {
+              const response = await fetch("/api/attendance", {
                   method: "POST",
                   headers: {
                       "Content-Type": "application/json",
                   },
-                  body: JSON.stringify({ name: attName, course_id: id_course }),
+                  body: JSON.stringify({ name: attName, course_id: id_course  }),
               });
 
               if (response.ok) {
@@ -144,4 +248,51 @@ const attendanceData = await db
           }
       };
   }
+
+  const $addPeriodBtn = $("#addPeriodBtn");
+  const $periodForm = $("#PeriodModalForm");
+
+  // Mostrar modal
+  if ($addPeriodBtn) {
+      // Usar una aserción de tipo
+      ($addPeriodBtn as HTMLElement).addEventListener("click", () => {
+          (window as any).showPeriodModal();
+      });
+  }
+
+  // Enviar formulario
+  if ($periodForm) {
+      $periodForm.onsubmit = async (e) => {
+          e.preventDefault();
+
+          const periodName = ($("#periodName") as HTMLInputElement).value;
+
+          if (!periodName) return;
+
+          
+          const courseDataEl = document.getElementById("courseData");
+            const id_course = courseDataEl.dataset.courseId;
+
+
+          try {
+              const response = await fetch("/api/period", {
+                  method: "POST",
+                  headers: {
+                      "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({  }),
+              });
+
+              if (response.ok) {
+                  // Recargar la página para mostrar la nueva escuela
+                  window.location.reload();
+              } else {
+                  console.error("Error al crear el estudiante");
+              }
+          } catch (error) {
+              console.error("Error:", error);
+          }
+      };
+  }
+
 </script>

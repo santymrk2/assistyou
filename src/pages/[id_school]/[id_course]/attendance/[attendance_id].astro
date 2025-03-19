@@ -1,0 +1,114 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import { db, eq, and, Student, Course } from "astro:db";
+import { getSession } from "auth-astro/server";
+import { generateId } from "../../../../lib/utils";
+
+const { id_school, id_course, attendance_id } = Astro.params;
+
+const session = await getSession(Astro.request);
+
+if (!session) {
+    return {
+        error: "No hay sesión activa",
+        status: 401,
+        statusText: "Unauthorized",
+    };
+}
+
+const userId = session?.user?.email ? generateId(session.user.email) : "";
+
+if (!id_school || !id_course || !attendance_id) {
+    return new Response("Parámetros inválidos", {
+        status: 400,
+        statusText: "Bad Request",
+    });
+}
+
+const [students, course] = await Promise.all([
+    db
+        .select()
+        .from(Student)
+        .where(
+            and(eq(Student.course_id, id_course), eq(Student.user_id, userId)),
+        ),
+    db
+        .select()
+        .from(Course)
+        .where(and(eq(Course.id, id_course), eq(Course.user_id, userId))),
+]);
+
+export const prerender = false;
+---
+
+<Layout>
+    <section class="p-4 w-full md:w-3/4 lg:w-1/2">
+        <div class="mb-6">
+            <a
+                href={`/${id_school}/${course.id}`}
+                class="text-orange-500 hover:underline"
+            >
+                &larr; Volver a {course.name}
+            </a>
+        </div>
+
+        <div
+            class="flex flex-col justify-center items-center w-full my-8 text-white"
+        >
+            <h1 class="text-center text-2xl font-semibold mb-8">Asistencia</h1>
+            <p>{course.name}</p>
+            <div class="flex flex-col justify-center items-center gap-2 w-full">
+                {
+                    students.map((student) => (
+                        <div class="rounded-lg bg-gray-500/20 w-full flex flex-row justify-between items-center p-2">
+                            <p class="text-sm">{student.name}</p>
+                            <div class="flex flex-row items-center gap-2">
+                                <div class="bg-zinc-500/20 rounded-lg h-full p-1 sm:p-2 group hover:bg-green-500/20">
+                                    <svg
+                                        viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        class="size-4 stroke-2 stroke-zinc-500 group-hover:stroke-green-500"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M17 5 8 15l-5-4"
+                                        />
+                                    </svg>
+                                </div>
+
+                                <div class="bg-zinc-500/20 rounded-lg h-full p-1 sm:p-2 group hover:bg-red-500/20">
+                                    <svg
+                                        viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        class="size-4 fill-zinc-500 group-hover:fill-red-500"
+                                    >
+                                        <path
+                                            fill-rule="evenodd"
+                                            d="M16.293 17.707a1 1 0 0 0 1.414-1.414L11.414 10l6.293-6.293a1 1 0 0 0-1.414-1.414L10 8.586 3.707 2.293a1 1 0 0 0-1.414 1.414L8.586 10l-6.293 6.293a1 1 0 1 0 1.414 1.414L10 11.414l6.293 6.293z"
+                                        />
+                                    </svg>
+                                </div>
+
+                                <div class="bg-zinc-500/20 rounded-lg h-full p-1 sm:p-2 group hover:bg-orange-500/20">
+                                    <svg
+                                        viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        class="size-4 fill-zinc-500 group-hover:fill-orange-500"
+                                    >
+                                        <path
+                                            d="M3 10a7 7 0 1 1 14 0 7 7 0 0 1-14 0zm7-9a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm1 5a1 1 0 1 0-2 0v4.032l-2.64 2.2a1 1 0 1 0 1.28 1.536l3-2.5A1 1 0 0 0 11 10.5V6z"
+                                        />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                }
+            </div>
+        </div>
+    </section>
+</Layout>

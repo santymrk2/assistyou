@@ -63,14 +63,14 @@ const exams = await db
           No hay exámenes registrados para este curso.
         </p>
       ) : (
-        <div class="grid grid-cols-2 gap-3 justify-items-center">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 justify-items-center">
           {exams.map(({ Exam, SemesterPeriod }) => (
             <a class="w-full h-full">
-              <div class="flex flex-col justify-center items-center gap-2 bg-zinc-500/20 p-4 rounded-lg text-center text-zinc-500 hover:scale-104 transition-all">
+              <div class="flex flex-col justify-center items-center gap-2 bg-zinc-500/20 p-4 rounded-lg text-center text-zinc-500 hover:scale-104 transition-all select-none">
                 <p class="text-sm">
                   {new Date(Exam.exam_date).toLocaleDateString()}
                 </p>
-                <p class="text-xl font-bold text-white">
+                <p class="text-xl font-bold">
                   {Exam.name}
                 </p>
                 <p class="text-xs">{SemesterPeriod.name}</p>

@@ -1,6 +1,6 @@
 // src/lib/courseUtils.ts
 import { generateId } from "./utils";
-import { db, eq, and, School, Course } from "astro:db";
+import { db, eq, and, School, Course} from "astro:db";
 import { getSession } from "auth-astro/server";
 
 export async function getCourseData(request, schoolId, courseId) {
