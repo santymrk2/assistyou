@@ -1,6 +1,6 @@
 // src/pages/api/attendances.ts
 import type { APIRoute } from 'astro';
-import { db, Attendance } from 'astro:db';
+import { db, Attendance, SemesterPeriod } from 'astro:db';
 import { generateId } from '../../lib/utils';
 import { getSession } from 'auth-astro/server';
 
@@ -29,8 +29,10 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
+
+    const semesters
     
-    const semester_period_id = 
+    const semester_period_id = //here we have to find what period it has by the date.
 
     // Generar ID único para la asistencia
     // Se utiliza una combinación de course_id, fecha de asistencia y parte del userId.
